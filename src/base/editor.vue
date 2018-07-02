@@ -48,7 +48,6 @@
 		methods: {
 			imgClick() {
 				GetToken().then((res) => {
-					console.log(res);
 					if(res.data.code === ERR_CODE) {
 						this.token = res.data.data;
 					}

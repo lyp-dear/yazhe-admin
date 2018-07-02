@@ -136,6 +136,13 @@
 						<span>{{scope.row.divide|| '--'}}</span>
 					</template>
 				</el-table-column>
+				<el-table-column prop="address" label="收获地址" width="100" align="center">
+					<template slot-scope="scope">
+						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+						<span>{{scope.row.address|| '--'}}</span>
+					</template>
+				</el-table-column>
+
 				<el-table-column prop="remark" label="备注" width="100" align="center">
 					<template slot-scope="scope">
 						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
@@ -166,337 +173,357 @@
 </template>
 
 <script>
-	import { OrderList, AddCode, AddDelivery, OrderDetail, DownYear, ExportOrder } from 'api/order'
+import {
+  OrderList,
+  AddCode,
+  AddDelivery,
+  OrderDetail,
+  DownYear,
+  ExportOrder
+} from "api/order";
 
-	import { ERR_CODE } from 'api/config'
-	import { showLoading, showNotification } from 'common/js/common'
+import { ERR_CODE } from "api/config";
+import { showLoading, showNotification } from "common/js/common";
 
-	export default {
+export default {
+  data() {
+    return {
+      name: "",
+      orderName: "",
+      is_pay: "",
 
-		data() {
-			return {
+      time: "",
+      sTime: "",
+      eTime: "",
+      currentPage: 0,
+      total: 0,
+      tableData: [],
+      detailData: [],
 
-				name: '',
-				orderName: '',
-				is_pay: '',
+      dialogTableVisible: false,
+      isDelivery: false,
+      isOrderDetail: false,
+      data: {
+        code: "",
+        number: "",
+        partOrder: "",
+        order_number: ""
+      },
+      data1: {
+        expressName: "",
+        expressNumber: "",
+        remark: "",
+        count: "",
+        order_number: ""
+      },
+      rules: {
+        code: [
+          {
+            required: true,
+            message: "请填写生产线代码",
+            trigger: "blur,input,change"
+          }
+        ],
+        number: [
+          {
+            required: true,
+            message: "请填写生产线编号",
+            trigger: "blur,input,change"
+          }
+        ],
+        partOrder: [
+          {
+            required: true,
+            message: "请填写下单员",
+            trigger: "blur,input,change"
+          }
+        ]
+      },
+      rules1: {
+        expressName: [
+          {
+            required: true,
+            message: "请填写快递公司",
+            trigger: "blur,input,change"
+          }
+        ],
 
-				time: '',
-				sTime: '',
-				eTime: '',
-				currentPage: 0,
-				total: 0,
-				tableData: [],
-				detailData: [],
+        expressNumber: [
+          {
+            required: true,
+            message: "请填写快递单号",
+            trigger: "blur,input,change"
+          }
+        ],
+        count: [
+          {
+            required: true,
+            message: "请填写商品数量",
+            trigger: "blur,input,change"
+          }
+        ]
+      }
+    };
+  },
+  methods: {
+    getTime(val) {
+      if (val === null) return;
+      this.sTime = val[0];
+      this.eTime = val[1];
+    },
+    soso() {
+      this.currentPage = 0;
+      this.getOrderList();
+    },
+    down() {
+      //				if(this.sTime === '' && this.eTime === '') {
+      //					showNotification('warning', '请选择开始时间和结束时间');
+      //					return;
+      //				}
+      let options = {
+        name: this.name,
+        orderName: this.orderName,
+        start: this.sTime + "",
+        end: this.eTime + ""
+      };
+      if (this.is_pay != "") {
+        options.is_pay = Number(this.is_pay);
+      } else {
+        options.is_pay = "";
+      }
+      ExportOrder(options)
+        .then(res => {
+          //					if(res.data != '') {
+          //						window.location.href = res.request.responseURL;
+          //					} else {
+          //						showNotification('error', '网络异常,请稍候!')
+          //					}
+          let blob = new Blob([res.data], {
+            type: "application/x-xls"
+          });
+          let link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          if (this.name != "") {
+            link.download = this.name + ".xls";
+          } else {
+            link.download = "订单表" + ".xls";
+          }
+          link.click();
+        })
+        .catch(res => {
+          showNotification("error", "网络异常,请稍候!");
+        });
+    },
+    orderDetail(row) {
+      this.isOrderDetail = true;
+      this.detailData = [];
+      let options = {
+        id: row.id
+      };
+      const loading = showLoading();
+      OrderDetail(options).then(res => {
+        console.log(res);
+        loading.close();
+        if (res.data.code === ERR_CODE) {
+          this.detailData.push(res.data.data);
+        }
+      });
+    },
+    addCode(row) {
+      this.data.order_number = row.order_number;
+      this.dialogTableVisible = true;
+    },
+    delivery(row) {
+      this.data1.order_number = row.order_number;
+      this.isDelivery = true;
+    },
+    addCodeApi(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          const loading = showLoading();
+          let options = {
+            code: this.data.code,
+            partOrder: this.data.partOrder,
+            order_number: this.data.order_number,
+            number: this.data.number
+          };
+          options = JSON.stringify(options);
+          AddCode(options)
+            .then(res => {
+              console.log(res);
+              loading.close();
+              if (res.data.code == ERR_CODE) {
+                showNotification("success", "添加成功");
+                this.dialogTableVisible = false;
+                //								this.$router.push({
+                //									path: '/sizeTypeList'
+                //								});
+              } else {
+                showNotification("warning", res.data.msg);
+              }
+            })
+            .catch(res => {
+              loading.close();
+              showNotification("error", "网络错误,请稍后!");
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    addDelivery(formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          const loading = showLoading();
+          let options = {
+            expressName: this.data1.expressName,
+            order_number: this.data1.order_number,
+            expressNumber: this.data1.expressNumber,
+            remark: this.data1.remark,
+            count: this.data1.count
+          };
 
-				dialogTableVisible: false,
-				isDelivery: false,
-				isOrderDetail: false,
-				data: {
-					code: '',
-					number: '',
-					partOrder: '',
-					order_number: '',
-
-				},
-				data1: {
-					expressName: '',
-					expressNumber: '',
-					remark: '',
-					count: '',
-					order_number: ''
-
-				},
-				rules: {
-					code: [{
-						required: true,
-						message: '请填写生产线代码',
-						trigger: 'blur,input,change'
-					}],
-					number: [{
-						required: true,
-						message: '请填写生产线编号',
-						trigger: 'blur,input,change'
-					}],
-					partOrder: [{
-						required: true,
-						message: '请填写下单员',
-						trigger: 'blur,input,change'
-					}]
-				},
-				rules1: {
-					expressName: [{
-						required: true,
-						message: '请填写快递公司',
-						trigger: 'blur,input,change'
-					}],
-
-					expressNumber: [{
-						required: true,
-						message: '请填写快递单号',
-						trigger: 'blur,input,change'
-					}],
-					count: [{
-						required: true,
-						message: '请填写商品数量',
-						trigger: 'blur,input,change'
-					}]
-				}
-			}
-		},
-		methods: {
-			getTime(val) {
-				if(val === null) return;
-				this.sTime = val[0];
-				this.eTime = val[1];
-
-			},
-			soso() {
-				this.currentPage = 0;
-				this.getOrderList();
-			},
-			down() {
-				//				if(this.sTime === '' && this.eTime === '') {
-				//					showNotification('warning', '请选择开始时间和结束时间');
-				//					return;
-				//				}
-				let options = {
-					name: this.name,
-					orderName: this.orderName,
-					start: this.sTime + '',
-					end: this.eTime + ''
-				}
-				if(this.is_pay != '') {
-					options.is_pay = Number(this.is_pay);
-				} else {
-					options.is_pay = '';
-				}
-				ExportOrder(options).then(res => {
-					//					if(res.data != '') {
-					//						window.location.href = res.request.responseURL;
-					//					} else {
-					//						showNotification('error', '网络异常,请稍候!')
-					//					}
-					let blob = new Blob([res.data], {
-						type: 'application/x-xls'
-					});
-					let link = document.createElement('a');
-					link.href = window.URL.createObjectURL(blob);
-					if(this.name != ''){
-						link.download = this.name + '.xls';
-						
-					}else{
-						link.download = '订单表' + '.xls';
-						
-					}
-					link.click();
-				}).catch((res) => {　　
-					showNotification('error', '网络异常,请稍候!')
-				});
-			},
-			orderDetail(row) {
-				this.isOrderDetail = true;
-				this.detailData = [];
-				let options = {
-					id: row.id
-				}
-				const loading = showLoading();
-				OrderDetail(options).then(res => {
-					console.log(res)
-					loading.close();
-					if(res.data.code === ERR_CODE) {
-						this.detailData.push(res.data.data);
-					}
-				})
-			},
-			addCode(row) {
-				this.data.order_number = row.order_number;
-				this.dialogTableVisible = true;
-			},
-			delivery(row) {
-				this.data1.order_number = row.order_number;
-				this.isDelivery = true;
-			},
-			addCodeApi(formName) {
-				this.$refs[formName].validate((valid) => {
-					if(valid) {
-						const loading = showLoading();
-						let options = {
-							code: this.data.code,
-							partOrder: this.data.partOrder,
-							order_number: this.data.order_number,
-							number: this.data.number
-						}
-						options = JSON.stringify(options);
-						AddCode(options).then((res) => {
-							console.log(res);
-							loading.close();
-							if(res.data.code == ERR_CODE) {
-								showNotification('success', '添加成功');
-								this.dialogTableVisible = false;
-								//								this.$router.push({
-								//									path: '/sizeTypeList'
-								//								});
-							} else {
-								showNotification('warning', res.data.msg);
-							}
-						}).catch((res) => {
-							loading.close();
-							showNotification('error', '网络错误,请稍后!')
-						})
-					} else {
-						console.log('error submit!!');
-						return false;
-					}
-				});
-			},
-			addDelivery(formName) {
-				this.$refs[formName].validate((valid) => {
-					if(valid) {
-						const loading = showLoading();
-						let options = {
-							expressName: this.data1.expressName,
-							order_number: this.data1.order_number,
-							expressNumber: this.data1.expressNumber,
-							remark: this.data1.remark,
-							count: this.data1.count
-						}
-
-						AddDelivery(options).then((res) => {
-							console.log(res);
-							loading.close();
-							if(res.data.code == ERR_CODE) {
-								showNotification('success', '发货成功');
-								this.isDelivery = false;
-								//								this.$router.push({
-								//									path: '/sizeTypeList'
-								//								});
-							} else {
-								showNotification('warning', res.data.msg);
-							}
-						}).catch((res) => {
-							loading.close();
-							showNotification('error', '网络错误,请稍后!')
-						})
-					} else {
-						console.log('error submit!!');
-						return false;
-					}
-				});
-			},
-			editClick(row) {
-				this.$router.push({
-					name: 'editCustomized',
-					params: row
-				})
-			},
-			removeClick(row) {
-				this.$confirm('此操作将永久删除尺寸类型, 是否继续?', '提示', {
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
-					type: 'warning'
-				}).then(() => {
-					const loading = showLoading();
-					let options = {
-						id: row.id,
-						status: 1,
-
-					}
-					options = JSON.stringify(options);
-					UpdateCustomized(options).then((res) => {
-						loading.close();
-						if(res.data.code == ERR_CODE) {
-							showNotification('success', '删除成功');
-							this.getOrderList();
-						} else {
-							showNotification('error', res.data.msg);
-						}
-					}).catch((res) => {
-						loading.close();
-						showNotification('error', '网络错误,请稍后');
-
-					})
-				}).catch(() => {});
-			},
-			handleCurrentChange(val) {
-				this.currentPage = val;
-				this.getOrderList();
-			},
-			getOrderList() {
-				const loading = showLoading();
-				let options = {
-					pageSize: 10,
-					currentPage: this.currentPage,
-					name: this.name,
-					orderName: this.orderName,
-					start: this.sTime + '',
-					end: this.eTime + ''
-				}
-				if(this.is_pay === ''){
-					options.is_pay = '';
-				}else{
-					options.is_pay = Number(this.is_pay)
-				}
-				OrderList(options).then((res) => {
-					loading.close();
-					if(res.data.code == ERR_CODE) {
-						this.tableData = [];
-						let data = res.data.data;
-						this.total = res.data.total;
-						for(let i = 0; i < data.length; i++) {
-							let obj = {
-								'id': data[i].id || '--',
-								'name': data[i].name || '--',
-								'order_number': data[i].order_number || '--',
-								'pay_price': data[i].pay_price || '--',
-								'code': data[i].code || '--',
-								'number': data[i].number || '--',
-								'partOrder': data[i].partOrder || '--',
-								'theSalesmanStr': data[i].theSalesmanStr || '--',
-								'quantityBodyPart': data[i].quantityBodyPart || '--',
-								'custom_number': data[i].custom_number || '--'
-
-							}
-							let date1 = new Date(data[i].pay_time);
-							obj.pay_time = date1.toLocaleDateString().replace(/\//g, "-") + " " + date1.toTimeString().substr(0, 8);
-							if(data[i].type === 1) {
-								obj.type = '全定制';
-							} else {
-								obj.type = '半定制';
-
-							}
-							if(data[i].is_pay === 0) {
-								obj.is_pay = '待支付';
-							}
-							if(data[i].is_pay === 1) {
-								obj.is_pay = '已支付';
-							}
-							this.tableData.push(obj);
-						}
-					} else {
-						showNotification('warning', res.data.msg)
-					}
-				})
-
-			},
-		},
-		created() {
-			this.getOrderList();
-		}
-	}
+          AddDelivery(options)
+            .then(res => {
+              console.log(res);
+              loading.close();
+              if (res.data.code == ERR_CODE) {
+                showNotification("success", "发货成功");
+                this.isDelivery = false;
+                //								this.$router.push({
+                //									path: '/sizeTypeList'
+                //								});
+              } else {
+                showNotification("warning", res.data.msg);
+              }
+            })
+            .catch(res => {
+              loading.close();
+              showNotification("error", "网络错误,请稍后!");
+            });
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+    editClick(row) {
+      this.$router.push({
+        name: "editCustomized",
+        params: row
+      });
+    },
+    removeClick(row) {
+      this.$confirm("此操作将永久删除尺寸类型, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          const loading = showLoading();
+          let options = {
+            id: row.id,
+            status: 1
+          };
+          options = JSON.stringify(options);
+          UpdateCustomized(options)
+            .then(res => {
+              loading.close();
+              if (res.data.code == ERR_CODE) {
+                showNotification("success", "删除成功");
+                this.getOrderList();
+              } else {
+                showNotification("error", res.data.msg);
+              }
+            })
+            .catch(res => {
+              loading.close();
+              showNotification("error", "网络错误,请稍后");
+            });
+        })
+        .catch(() => {});
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val;
+      this.getOrderList();
+    },
+    getOrderList() {
+      const loading = showLoading();
+      let options = {
+        pageSize: 10,
+        currentPage: this.currentPage,
+        name: this.name,
+        orderName: this.orderName,
+        start: this.sTime + "",
+        end: this.eTime + ""
+      };
+      if (this.is_pay === "") {
+        options.is_pay = "";
+      } else {
+        options.is_pay = Number(this.is_pay);
+      }
+      OrderList(options).then(res => {
+        loading.close();
+        if (res.data.code == ERR_CODE) {
+          this.tableData = [];
+          let data = res.data.data;
+          this.total = res.data.total;
+          for (let i = 0; i < data.length; i++) {
+            let obj = {
+              id: data[i].id || "--",
+              name: data[i].name || "--",
+              order_number: data[i].order_number || "--",
+              pay_price: data[i].pay_price || "--",
+              code: data[i].code || "--",
+              number: data[i].number || "--",
+              partOrder: data[i].partOrder || "--",
+              theSalesmanStr: data[i].theSalesmanStr || "--",
+              quantityBodyPart: data[i].quantityBodyPart || "--",
+              custom_number: data[i].custom_number || "--"
+            };
+            let date1 = new Date(data[i].pay_time);
+            obj.pay_time =
+              date1.toLocaleDateString().replace(/\//g, "-") +
+              " " +
+              date1.toTimeString().substr(0, 8);
+            if (data[i].type === 1) {
+              obj.type = "全定制";
+            } else {
+              obj.type = "半定制";
+            }
+            if (data[i].is_pay === 0) {
+              obj.is_pay = "待支付";
+            }
+            if (data[i].is_pay === 1) {
+              obj.is_pay = "已支付";
+            }
+            this.tableData.push(obj);
+          }
+        } else {
+          showNotification("warning", res.data.msg);
+        }
+      });
+    }
+  },
+  created() {
+    this.getOrderList();
+  }
+};
 </script>
 
 <style scoped>
-	.pagination-box {
-		margin-top: 40px;
-		text-align: right;
-	}
-	
-	.block {
-		margin-bottom: 20px;
-		text-align: left;
-	}
-	
-	.block .el-input {
-		width: 120px;
-	}
+.pagination-box {
+  margin-top: 40px;
+  text-align: right;
+}
+
+.block {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.block .el-input {
+  width: 120px;
+}
 </style>
