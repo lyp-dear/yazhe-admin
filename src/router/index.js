@@ -42,6 +42,9 @@ const EditSizeTypeValue = resolve => require(['components/sizeTypeValue/editSize
 const AttributeList = resolve => require(['components/attribute/attributeList.vue'], resolve);
 const AddAttribute = resolve => require(['components/attribute/addAttribute.vue'], resolve);
 const EditAttribute = resolve => require(['components/attribute/editAttribute.vue'], resolve);
+
+const Level = resolve => require(['components/level/level.vue'], resolve);
+
 export default new Router({
 	routes: [{
 			path: '/',
@@ -153,6 +156,9 @@ export default new Router({
 				path: '/editAttribute',
 				name: 'editAttribute',
 				component: EditAttribute
+			},{
+				path: '/level',
+				component: Level
 			}]
 		}
 	]

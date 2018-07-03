@@ -10,8 +10,8 @@
 					<div class="portrait">
 						<el-dropdown>
 							<span class="el-dropdown-link">
-<img :src="avatar" alt="" />
-  </span>
+								<img :src="avatar" alt="" />
+							</span>
 							<el-dropdown-menu slot="dropdown">
 								<el-dropdown-item @click.native="logout">退出</el-dropdown-item>
 							</el-dropdown-menu>
@@ -175,6 +175,17 @@
 						</router-link>
 					</el-submenu>
 				</el-menu>
+				<el-menu default-active="11" class="el-menu-vertical-demo">
+					<el-submenu index="11">
+						<template slot="title">
+							<i class="el-icon-menu"></i>
+							<span>组织架构</span>
+						</template>
+						<router-link tag="div" class="tab-item" to="/level">
+							<el-menu-item index="11-1">组织架构列表</el-menu-item>
+						</router-link>
+					</el-submenu>
+				</el-menu>
 			</el-aside>
 			<el-container>
 				<el-main>
@@ -187,103 +198,96 @@
 </template>
 
 <script type="text/ecmascript-6">
-	import { showNotification } from 'common/js/common'
+import { showNotification } from "common/js/common";
 
-	export default {
-		data() {
-			return {
-				avatar: '',
-				name: '',
-			}
-		},
-		methods: {
-			logout(command) {
-				this.$confirm('是否退出登录', '提示', {
-					confirmButtonText: '确定',
-					cancelButtonText: '取消',
-					type: 'warning'
-				}).then(() => {});
-
-			}
-		},
-		created() {},
-		watch: {},
-
-	}
+export default {
+  data() {
+    return {
+      avatar: "",
+      name: ""
+    };
+  },
+  methods: {
+    logout(command) {
+      this.$confirm("是否退出登录", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(() => {});
+    }
+  },
+  created() {},
+  watch: {}
+};
 </script>
 
 <style scoped>
-	.el-menu-item-group__title {
-		display: none !important;
-	}
-	
-	.el-header {
-		background-color: #20a0ff;
-		color: #fff;
-		text-align: center;
-		line-height: 60px;
-		padding: 0;
-		display: flex;
-	}
-	
-	.logo {
-		flex: 0 0 230px;
-		width: 230px;
-	}
-	
-	.user-box {
-		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-	}
-	
-	.user-info {
-		flex: 1;
-		padding-right: 40px;
-	}
-	
-	.portrait {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		overflow: hidden;
-		margin-left: 10px;
-	}
-	
-	.portrait img {
-		width: 100%;
-		height: 100%;
-	}
-	
-	.container {
-		display: flex;
-		position: absolute;
-		top: 60px;
-		bottom: 0;
-		overflow: hidden;
-	}
-	
-	.el-aside {
-		background-color: #D3DCE6;
-		color: #fff;
-		text-align: center;
-		flex: 0 0 230px;
-		width: 230px;
-	}
-	
-	.el-main {
-		background-color: #fff;
-		color: #333;
-		text-align: center;
-		flex: 1;
-	}
-	
-	body>.el-container {
-		margin-bottom: 40px;
-	}
-	
-	.el-container:nth-child(5) .el-aside,
-	.el-container:nth-child(6) .el-aside {}
-	
-	.el-container:nth-child(7) .el-aside {}
+.el-menu-item-group__title {
+  display: none !important;
+}
+
+.el-header {
+  background-color: #20a0ff;
+  color: #fff;
+  text-align: center;
+  line-height: 60px;
+  padding: 0;
+  display: flex;
+}
+
+.logo {
+  flex: 0 0 230px;
+  width: 230px;
+}
+
+.user-box {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.user-info {
+  flex: 1;
+  padding-right: 40px;
+}
+
+.portrait {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-left: 10px;
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+}
+
+.container {
+  display: flex;
+  position: absolute;
+  top: 60px;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.el-aside {
+  background-color: #d3dce6;
+  color: #fff;
+  text-align: center;
+  flex: 0 0 230px;
+  width: 230px;
+}
+
+.el-main {
+  background-color: #fff;
+  color: #333;
+  text-align: center;
+  flex: 1;
+}
+
+body > .el-container {
+  margin-bottom: 40px;
+}
 </style>
