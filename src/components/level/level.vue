@@ -104,7 +104,6 @@ export default {
             }
             if (item.label1.indexOf(query) > -1) {
               item.label = item.label1;
-              console.log(item);
               return item;
             }
           });
@@ -138,11 +137,10 @@ export default {
     getQuery() {
       let options = {
         proportion: this.proportion,
-        pageSize: 100
+        pageSize: 10000
       };
       UserList(options)
         .then(res => {
-          console.log(res);
           if (res.data.code === 0) {
             let data = res.data.data;
             data.map(item => {
@@ -214,12 +212,10 @@ export default {
     getBot(id, proportion, resolve) {
       let options = {
         id: id,
-        proportion: proportion,
-        pageSize: 100
+        pageSize: 10000
       };
       Bot(options)
         .then(res => {
-          console.log(res);
           if (res.data.code === 0) {
             let data = res.data.data;
             data.map(item => {
