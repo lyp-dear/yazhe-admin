@@ -41,8 +41,8 @@
 			<el-table-column label="操作" width="140" align="center">
 				<template slot-scope="scope">
 					<el-button type="text" size="small" @click="editClick(scope.row)">编辑</el-button>
-					<el-button type="text" size="small" @click="teamClick(scope.row)">查看组织架构</el-button>
-					<el-button type="text" size="small" @click="editClick(scope.row)">查看尺寸</el-button>
+					<!--<el-button type="text" size="small" @click="teamClick(scope.row)">查看组织架构</el-button>
+					<el-button type="text" size="small" @click="editClick(scope.row)">查看尺寸</el-button>-->
 				</template>
 			</el-table-column>
 		</el-table>
@@ -84,7 +84,7 @@
 					<el-select v-model="userInfo.channel" clearable placeholder="请选择">
 						<el-option key="4" label="合伙人" value="4"></el-option>
 						<el-option key="2" label="经销商" value="2"></el-option>
-						<el-option key="5" label="金钻会员" value="5"></el-option>
+						<el-option key="5" label="会员" value="5"></el-option>
 						<el-option key="1" label="生产线" value="1"></el-option>
 						<el-option key="3" label="设计师" value="3"></el-option>
 						<el-option key="0" label="其他" value="0"></el-option>
