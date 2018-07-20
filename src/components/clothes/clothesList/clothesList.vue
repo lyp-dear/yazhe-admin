@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="block">
-			<el-input v-model="goods_name"clearable placeholder="请输入商品名称"></el-input>
+			<el-input v-model="goods_name" clearable placeholder="请输入商品名称"></el-input>
 			<el-select v-model="category_id" clearable placeholder="请选择">
 				<el-option v-for="item in categoryOption" :key="item.value" :label="item.label" :value="item.value">
 				</el-option>

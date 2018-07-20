@@ -57,7 +57,6 @@
 				}).then(() => {
 					const loading = showLoading();
 					let options = {
-						title: row.title,
 						id: row.id,
 						status: 1,
 

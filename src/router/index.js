@@ -44,6 +44,8 @@ const AddAttribute = resolve => require(['components/attribute/addAttribute.vue'
 const EditAttribute = resolve => require(['components/attribute/editAttribute.vue'], resolve);
 
 const Level = resolve => require(['components/level/level.vue'], resolve);
+const SizeList = resolve => require(['components/size/sizeList.vue'], resolve);
+
 
 export default new Router({
 	routes: [{
@@ -159,6 +161,9 @@ export default new Router({
 			},{
 				path: '/level',
 				component: Level
+			},{
+				path:'/sizeList',
+				component:SizeList
 			}]
 		}
 	]

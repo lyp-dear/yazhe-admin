@@ -41,8 +41,8 @@
 			<el-table-column label="操作" width="140" align="center">
 				<template slot-scope="scope">
 					<el-button type="text" size="small" @click="editClick(scope.row)">编辑</el-button>
-					<!--<el-button type="text" size="small" @click="teamClick(scope.row)">查看组织架构</el-button>
-					<el-button type="text" size="small" @click="editClick(scope.row)">查看尺寸</el-button>-->
+					<!-- <el-button type="text" size="small" @click="teamClick(scope.row)">查看组织架构</el-button> -->
+					<el-button type="text" size="small" @click="sizeClick(scope.row)">查看尺寸</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -226,9 +226,9 @@ export default {
         this.userInfo.proportion = "";
       }
     },
-    teamClick(row){
+    sizeClick(row){
       this.$router.push({
-        path:'/level',
+        path:'/sizeList',
         query:{
           id: row.openId
         }
