@@ -1,174 +1,178 @@
 <template>
-	<div>
-		<div class="block">
-			<el-input placeholder="请输入姓名" v-model="name">
-			</el-input>
-			<!--<el-input placeholder="请输入主单人" v-model="orderName" clearable>
+  <div>
+    <div class="block">
+      <el-input placeholder="请输入姓名" v-model="name">
+      </el-input>
+      <!--<el-input placeholder="请输入主单人" v-model="orderName" clearable>
 			</el-input>-->
-			<el-select v-model="is_pay" clearable placeholder="请选择">
-				<el-option label="未支付" value="0"></el-option>
-				<el-option label="已支付" value="1"></el-option>
-			</el-select>
-			<el-date-picker v-model="time" type="daterange" @change="getTime" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :unlink-panels="false" value-format="yyyy-MM-dd">
-			</el-date-picker>
-			<el-button type="primary" icon="el-icon-search" @click="soso">搜索</el-button>
-			<el-button type="primary" @click="down" icon="el-icon-download">导出数据</el-button>
-		</div>
+      <el-select v-model="is_pay" clearable placeholder="请选择">
+        <el-option label="未支付" value="0"></el-option>
+        <el-option label="已支付" value="1"></el-option>
+      </el-select>
+      <el-date-picker v-model="time" type="daterange" @change="getTime" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :unlink-panels="false" value-format="yyyy-MM-dd">
+      </el-date-picker>
+      <el-button type="primary" icon="el-icon-search" @click="soso">搜索</el-button>
+      <el-button type="primary" @click="down" icon="el-icon-download">导出数据</el-button>
+    </div>
 
-		<el-table :data="tableData" border style="width: 100%">
-			<el-table-column type="index" width="150" align="center">
-			</el-table-column>
-			<el-table-column prop="id" label="id" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="name" label="姓名" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="order_number" label="订单号" width="180" align="center">
-			</el-table-column>
-			<el-table-column label="后台订单号" align="center" width="200">
-				<template slot-scope="scope">
-					<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-					<a href="javascript:;" @click="orderDetail(scope.row)">{{scope.row.custom_number}}</a>
-				</template>
-			</el-table-column>
-			<el-table-column prop="pay_price" label="支付金额" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="is_pay" label="支付状态" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="code" label="生产线代码" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="number" label="生产线编号" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="partOrder" label="下单员" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="theSalesmanStr" label="主单人" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="quantityBodyPart" label="量体员" width="180" align="center">
-			</el-table-column>
-			<el-table-column prop="pay_time" label="支付时间" width="180" align="center">
-			</el-table-column>
-			<!--<el-table-column label="图片地址" align="center" width="200">
+    <el-table :data="tableData" border style="width: 100%">
+      <el-table-column type="index" width="150" align="center">
+      </el-table-column>
+      <el-table-column prop="id" label="id" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="name" label="姓名" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="order_number" label="订单号" width="180" align="center">
+      </el-table-column>
+      <el-table-column label="后台订单号" align="center" width="200">
+        <template slot-scope="scope">
+          <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+          <a href="javascript:;" @click="orderDetail(scope.row)">{{scope.row.custom_number}}</a>
+        </template>
+      </el-table-column>
+      <el-table-column prop="pay_price" label="支付金额" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="zhengprice" label="真实价钱" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="is_pay" label="支付状态" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="code" label="生产线代码" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="number" label="生产线编号" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="partOrder" label="下单员" width="180" align="center">
+      </el-table-column>
+
+      <el-table-column prop="theSalesmanStr" label="主单人" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="quantityBodyPart" label="量体员" width="180" align="center">
+      </el-table-column>
+      <el-table-column prop="pay_time" label="支付时间" width="180" align="center">
+      </el-table-column>
+      <!--<el-table-column label="图片地址" align="center" width="200">
 				<template slot-scope="scope">
 					<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />
 				</template>
 			</el-table-column>-->
-			<el-table-column label="操作" width="140" align="center">
-				<template slot-scope="scope">
-					<!--<el-button @click="removeClick(scope.row)" type="text" size="small">删除</el-button>
+      <el-table-column label="操作" width="140" align="center">
+        <template slot-scope="scope">
+          <!--<el-button @click="removeClick(scope.row)" type="text" size="small">删除</el-button>
 					<el-button type="text" size="small" @click="editClick(scope.row)">编辑</el-button>-->
-					<el-button type="text" size="small" @click="addCode(scope.row)">添加编号</el-button>
-					<el-button type="text" size="small" @click="delivery(scope.row)">发货</el-button>
+          <el-button type="text" size="small" @click="addCode(scope.row)">添加编号</el-button>
+          <el-button type="text" size="small" @click="delivery(scope.row)">发货</el-button>
 
-				</template>
-			</el-table-column>
-		</el-table>
-		<div class="pagination-box">
-			<!---->
-			<el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next, jumper" :total="total">
-			</el-pagination>
-		</div>
+        </template>
+      </el-table-column>
+    </el-table>
+    <div class="pagination-box">
+      <!---->
+      <el-pagination @current-change="handleCurrentChange" :current-page="currentPage" :page-size="10" layout="total, prev, pager, next, jumper" :total="total">
+      </el-pagination>
+    </div>
 
-		<el-dialog title="添加生产线编号" :visible.sync="dialogTableVisible">
-			<el-form :model="data" :rules="rules" ref="data" label-width="100px" class="demo-ruleForm">
-				<el-form-item label="生产线代码" prop="code">
-					<el-input v-model="data.code" placeholder="请填写生产线代码"></el-input>
-				</el-form-item>
-				<el-form-item label="生产线编号" prop="number">
-					<el-input v-model="data.number" placeholder="请填写生产线编号"></el-input>
-				</el-form-item>
-				<el-form-item label="下单员" prop="partOrder">
-					<el-input v-model="data.partOrder" placeholder="请填写下单员"></el-input>
-				</el-form-item>
+    <el-dialog title="添加生产线编号" :visible.sync="dialogTableVisible">
+      <el-form :model="data" :rules="rules" ref="data" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="生产线代码" prop="code">
+          <el-input v-model="data.code" placeholder="请填写生产线代码"></el-input>
+        </el-form-item>
+        <el-form-item label="生产线编号" prop="number">
+          <el-input v-model="data.number" placeholder="请填写生产线编号"></el-input>
+        </el-form-item>
+        <el-form-item label="下单员" prop="partOrder">
+          <el-input v-model="data.partOrder" placeholder="请填写下单员"></el-input>
+        </el-form-item>
 
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="dialogTableVisible = false">取 消</el-button>
-				<el-button type="primary" @click="addCodeApi('data')">确 定</el-button>
-			</div>
-		</el-dialog>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogTableVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addCodeApi('data')">确 定</el-button>
+      </div>
+    </el-dialog>
 
-		<el-dialog title="发货" :visible.sync="isDelivery" width="900px">
-			<el-form :model="data1" :rules="rules1" ref="data1" label-width="100px" class="demo-ruleForm">
-				<el-form-item label="快递公司" prop="expressName">
-					<el-input v-model="data1.expressName" placeholder="请填写快递公司"></el-input>
-				</el-form-item>
-				<el-form-item label="快递单号" prop="expressNumber">
-					<el-input v-model="data1.expressNumber" placeholder="请填写快递单号"></el-input>
-				</el-form-item>
-				<el-form-item label="备注">
-					<el-input v-model="data1.remark" placeholder="请填写备注"></el-input>
-				</el-form-item>
-				<el-table-column prop="divide" label="分成" width="180" align="center">
-				</el-table-column>
-				<el-form-item label="商品数量" prop="count">
-					<el-input v-model="data1.count" placeholder="请填写商品数量"></el-input>
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="isDelivery = false">取 消</el-button>
-				<el-button type="primary" @click="addDelivery('data1')">确 定</el-button>
-			</div>
-		</el-dialog>
+    <el-dialog title="发货" :visible.sync="isDelivery" width="900px">
+      <el-form :model="data1" :rules="rules1" ref="data1" label-width="100px" class="demo-ruleForm">
+        <el-form-item label="快递公司" prop="expressName">
+          <el-input v-model="data1.expressName" placeholder="请填写快递公司"></el-input>
+        </el-form-item>
+        <el-form-item label="快递单号" prop="expressNumber">
+          <el-input v-model="data1.expressNumber" placeholder="请填写快递单号"></el-input>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="data1.remark" placeholder="请填写备注"></el-input>
+        </el-form-item>
+        <el-table-column prop="divide" label="分成" width="180" align="center">
+        </el-table-column>
+        <el-form-item label="商品数量" prop="count">
+          <el-input v-model="data1.count" placeholder="请填写商品数量"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="isDelivery = false">取 消</el-button>
+        <el-button type="primary" @click="addDelivery('data1')">确 定</el-button>
+      </div>
+    </el-dialog>
 
-		<el-dialog title="订单详情" :visible.sync="isOrderDetail">
-			<el-table :data="detailData" border style="width: 100%">
-				<el-table-column prop="order_number" label="订单号" width="100" align="center">
-				</el-table-column>
-				<el-table-column label="商品列表" align="center" width="200">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<div v-for="(item,index) in scope.row.goodsList" :key="index">
-							<p>{{item.goods_name}}</p>
-							<p>{{item.attribute}}</p>
-							<p>{{item.customization}}</p>
-							<p>{{item.size}}</p>
-						</div>
-					</template>
-				</el-table-column>
-				<el-table-column prop="pay_price" label="订单价格" width="100" align="center">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<span>{{scope.row.pay_price|| '--'}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column prop="divide" label="分成" width="100" align="center">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<span>{{scope.row.divide|| '--'}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column prop="address" label="收获地址" width="100" align="center">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<span>{{scope.row.address|| '--'}}</span>
-					</template>
-				</el-table-column>
+    <el-dialog title="订单详情" :visible.sync="isOrderDetail">
+      <el-table :data="detailData" border style="width: 100%">
+        <el-table-column prop="order_number" label="订单号" width="100" align="center">
+        </el-table-column>
+        <el-table-column label="商品列表" align="center" width="200">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <div v-for="(item,index) in scope.row.goodsList" :key="index">
+              <p>{{item.goods_name}}</p>
+              <p>{{item.attribute}}</p>
+              <p>{{item.customization}}</p>
+              <p>{{item.size}}</p>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="pay_price" label="订单价格" width="100" align="center">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <span>{{scope.row.pay_price|| '--'}}</span>
+          </template>
+        </el-table-column>
 
-				<el-table-column prop="remark" label="备注" width="100" align="center">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<span>{{scope.row.remark|| '--'}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column prop="code" label="生产编码" width="180" align="center">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<span>{{scope.row.code|| '--'}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column prop="number" label="生产线编号" width="180" align="center">
-					<template slot-scope="scope">
-						<!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
-						<span>{{scope.row.number|| '--'}}</span>
-					</template>
-				</el-table-column>
-				<!--<el-table-column label="图片地址" align="center" width="200">
+        <el-table-column prop="divide" label="分成" width="100" align="center">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <span>{{scope.row.divide|| '--'}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="address" label="收获地址" width="100" align="center">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <span>{{scope.row.address|| '--'}}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="remark" label="备注" width="100" align="center">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <span>{{scope.row.remark|| '--'}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="code" label="生产编码" width="180" align="center">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <span>{{scope.row.code|| '--'}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="number" label="生产线编号" width="180" align="center">
+          <template slot-scope="scope">
+            <!--<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />-->
+            <span>{{scope.row.number|| '--'}}</span>
+          </template>
+        </el-table-column>
+        <!--<el-table-column label="图片地址" align="center" width="200">
 				<template slot-scope="scope">
 					<img :src="scope.row.headimgurl" width="150" height="100" class="head_pic" />
 				</template>
 			</el-table-column>-->
-			</el-table>
-		</el-dialog>
-	</div>
+      </el-table>
+    </el-dialog>
+  </div>
 
 </template>
 
@@ -466,6 +470,7 @@ export default {
       OrderList(options).then(res => {
         loading.close();
         if (res.data.code == ERR_CODE) {
+          console.log(res);
           this.tableData = [];
           let data = res.data.data;
           this.total = res.data.total;
@@ -480,7 +485,8 @@ export default {
               partOrder: data[i].partOrder || "--",
               theSalesmanStr: data[i].theSalesmanStr || "--",
               quantityBodyPart: data[i].quantityBodyPart || "--",
-              custom_number: data[i].custom_number || "--"
+              custom_number: data[i].custom_number || "--",
+              zhengprice: data[i].zhengprice || "--"
             };
             let date1 = new Date(data[i].pay_time);
             obj.pay_time =

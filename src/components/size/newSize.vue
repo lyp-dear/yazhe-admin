@@ -1,6 +1,6 @@
 <template>
   <div id="new-size">
-    <el-dialog title="编辑用户信息" :visible.sync="sizeDialog" width="500px" class="editVisible" @change="cancle">
+    <el-dialog title="编辑用户信息" :visible.sync="sizeDialog" width="500px" class="editVisible" @close="cancle">
 
       <!-- <mt-field label="姓名" placeholder="请输入收件人姓名" v-model="username"></mt-field> -->
       <el-form :model="userInfo" ref="userInfo" label-width="100px" class="demo-ruleForm">
@@ -15,10 +15,11 @@
         <div class="size-list-info" v-for="(item,listIndex) in sizeList" :key="listIndex">
           <div class="title">{{item.title}}</div>
           <div class="icon">
-            <div :class="{'active':index == indexArray[listIndex].index}" v-for="(info,index) in item.sizeConfigValueList" @click="clickSize(info,index,listIndex,item)" :key="index">
+            <div :class="{'active':index == indexArray[listIndex].index}" v-for="(info,index) in item.sizeConfigValueList" :key="index" @click="clickSize(info,index,listIndex,item)">
               <div class="icon-box">
                 <img :src="info.image" alt="" />
               </div>
+              <el-input v-model="sizeInfoArray[index]"></el-input>
               <p>{{info.value}}</p>
             </div>
           </div>
@@ -95,7 +96,8 @@ export default {
       dataSize: [],
       sizeDialog: false,
 
-      picture: {}
+      picture: {},
+      sizeInfoArray: []
     };
   },
   methods: {
@@ -104,9 +106,10 @@ export default {
     },
     clickSize(info, index, listIndex, item) {
       if (item.title === this.picture[item.title]) {
-        this.picture[item.title] = info.value;
+        this.picture[item.title] = `${info.value}`;
       } else {
-        this.picture[item.title] = info.value;
+        this.picture[item.title] = `${info.value}`;
+        // |${this.sizeInfoArray[index]
       }
       this.indexArray[listIndex].index = index;
     },
@@ -122,6 +125,8 @@ export default {
       this.userInfo.mArray = [];
       this.dataSize = [];
       this.sizeDialog = false;
+      this.sizeInfoArray = [];
+
     },
     addSize() {
       //   if (this.userInfo === "") {
@@ -138,9 +143,19 @@ export default {
       let options = {
         title: this.userInfo.username,
         remarks: this.remarks,
-        body_digital_information: JSON.stringify(obj),
-        body_picture_information: JSON.stringify(this.picture)
+        body_digital_information: JSON.stringify(obj)
       };
+      this.indexArray.map(item => {
+        if (item.index >= 0) {
+          for (let i in this.picture) {
+            this.picture[i] = `${this.picture[i]}|${
+              this.sizeInfoArray[item.index]
+            }`;
+          }
+        }
+      });
+      options.body_picture_information = JSON.stringify(this.picture);
+
       if (this.isCheckde) {
         options.type = 1;
       } else {
@@ -154,7 +169,6 @@ export default {
             showNotification("success", "修改尺寸成功!");
             this.cancle();
             this.$emit("close");
-
           }
         });
       } else {
@@ -189,9 +203,10 @@ export default {
           for (let i in data) {
             if (item.title === i) {
               item.sizeConfigValueList.map((info, oIndex) => {
-                if (info.value === data[i]) {
+                if (info.value === data[i].split("|")[0]) {
                   this.picture[item.title] = data[i];
                   this.indexArray[index].index = oIndex;
+                  this.sizeInfoArray[oIndex] = data[i].split("|")[1];
                 }
               });
             }
@@ -363,6 +378,4 @@ img {
   width: 100%;
   margin-bottom: 20px;
 }
-
-
 </style>

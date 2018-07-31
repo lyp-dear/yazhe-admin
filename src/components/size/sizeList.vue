@@ -84,6 +84,7 @@ export default {
       });
     },
     addClick() {
+      this.data = '';
       this.$refs.newSize.sizeClick();
       SizeConfigByModel().then(res => {
         if (res.data.code === ERR_CODE) {
@@ -101,6 +102,7 @@ export default {
       this.data = {};
       this.defalutList = [];
       this.sizeArray = [];
+      this.$refs.newSize.cancle();
       this.getMySize();
     }
   }
