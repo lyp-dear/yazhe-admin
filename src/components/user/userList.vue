@@ -41,6 +41,8 @@
 			<el-table-column label="操作" width="140" align="center">
 				<template slot-scope="scope">
 					<el-button type="text" size="small" @click="editClick(scope.row)">编辑</el-button>
+					<el-button type="text" size="small" @click="editInfo(scope.row)">用户信息</el-button>
+
 					<!-- <el-button type="text" size="small" @click="teamClick(scope.row)">查看组织架构</el-button> -->
 					<el-button type="text" size="small" @click="sizeClick(scope.row)">查看尺寸</el-button>
 				</template>
@@ -57,6 +59,20 @@
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="dialogTableVisible = false">取 消</el-button>
+				<el-button type="primary" @click="addVip('data')">确 定</el-button>
+			</div>
+		</el-dialog>
+		<el-dialog title="查看用户信息infoVisible" :visible.sync="infoVisible">
+			<el-form :model="data" :rules="rules" ref="data" label-width="100px" class="demo-ruleForm">
+				<el-form-item label="VIP级别" prop="proportion">
+					<el-select v-model="data.proportion" clearable placeholder="请选择">
+						<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+						</el-option>
+					</el-select>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="infoVisible = false">取 消</el-button>
 				<el-button type="primary" @click="addVip('data')">确 定</el-button>
 			</div>
 		</el-dialog>
@@ -106,281 +122,279 @@
 </template>
 
 <script>
-import { UserList, Update } from "api/user";
+	import { UserList, Update } from "api/user";
 
-import { ERR_CODE } from "api/config";
-import { showLoading, showNotification } from "common/js/common";
+	import { ERR_CODE } from "api/config";
+	import { showLoading, showNotification } from "common/js/common";
 
-export default {
-  data() {
-    return {
-      currentPage: 1,
-      total: 0,
-      tableData: [],
-      levelArray: [],
+	export default {
+		data() {
+			return {
+				currentPage: 1,
+				total: 0,
+				tableData: [],
+				levelArray: [],
 
-      dialogTableVisible: false,
-      editVisible: false,
-      options4: [],
-      list: [],
-      loading: false,
-      options: [
-        {
-          value: "1",
-          label: "一级合伙人"
-        },
-        {
-          value: "2",
-          label: "二级合伙人"
-        },
-        {
-          value: "3",
-          label: "金钻vip"
-        },
-        {
-          value: "4",
-          label: "vip"
-        },
-        {
-          value: "5",
-          label: "创始投资人"
-        }
-      ],
-      data: {
-        proportion: "",
-        id: ""
-      },
-      rules: {
-        code: [
-          {
-            required: true,
-            message: "请选择vip级别",
-            trigger: "blur,input,change"
-          }
-        ]
-      },
-      userInfo: {
-        proportion: "",
-        name: "",
-        phone: "",
-        channel: "",
-        referralCode: ""
-      },
-      userInfoFules: {}
-    };
-  },
-  mounted() {},
-  methods: {
-    remoteMethod(query) {
-      if (query !== "") {
-        this.loading = true;
-        setTimeout(() => {
-          this.loading = false;
-          this.options4 = this.list.filter(item => {
-            if (
-              item.label.indexOf(query) > -1
-            ) {
-              return item;
-            }
-            if (
-              item.label1.indexOf(query) > -1
-            ) {
-				item.label = item.label1;
-				console.log(item)
-              return item;
-            }
-          });
-        }, 200);
-      } else {
-        this.options4 = [];
-      }
-    },
-    addClick(row) {
-      this.dialogTableVisible = true;
-      this.data.id = row.id;
-    },
-    editClick(row) {
-      this.editVisible = true;
-      this.userInfo = {
-        proportion: row.proportion + "",
-        name: row.name,
-        phone: row.phone,
-        channel: row.channel + "",
-        id: row.id
-      };
-      let obj = {
-        value: row.invitationCode,
-        label: row.parentName
-      };
+				dialogTableVisible: false,
+				editVisible: false,
+				options4: [],
+				list: [],
+				loading: false,
+				options: [{
+						value: "1",
+						label: "一级合伙人"
+					},
+					{
+						value: "2",
+						label: "二级合伙人"
+					},
+					{
+						value: "3",
+						label: "金钻vip"
+					},
+					{
+						value: "4",
+						label: "vip"
+					},
+					{
+						value: "5",
+						label: "创始投资人"
+					}
+				],
+				data: {
+					proportion: "",
+					id: ""
+				},
+				rules: {
+					code: [{
+						required: true,
+						message: "请选择vip级别",
+						trigger: "blur,input,change"
+					}]
+				},
+				userInfo: {
+					proportion: "",
+					name: "",
+					phone: "",
+					channel: "",
+					referralCode: ""
+				},
+				userInfoFules: {},
+				infoVisible: false,
+			};
+		},
+		mounted() {},
+		methods: {
+			remoteMethod(query) {
+				if(query !== "") {
+					this.loading = true;
+					setTimeout(() => {
+						this.loading = false;
+						this.options4 = this.list.filter(item => {
+							if(
+								item.label.indexOf(query) > -1
+							) {
+								return item;
+							}
+							if(
+								item.label1.indexOf(query) > -1
+							) {
+								item.label = item.label1;
+								console.log(item)
+								return item;
+							}
+						});
+					}, 200);
+				} else {
+					this.options4 = [];
+				}
+			},
+			addClick(row) {
+				this.dialogTableVisible = true;
+				this.data.id = row.id;
+			},
+			editClick(row) {
+				this.editVisible = true;
+				this.userInfo = {
+					proportion: row.proportion + "",
+					name: row.name,
+					phone: row.phone,
+					channel: row.channel + "",
+					id: row.id
+				};
+				let obj = {
+					value: row.invitationCode,
+					label: row.parentName
+				};
 
-      this.options4.push(obj);
-      this.userInfo.referralCode = row.invitationCode;
-      if (!row.parentName) {
-        this.userInfo.referralCode = "";
-        this.options4 = [];
-      }
-      if (!row.channel) {
-        this.userInfo.channel = "";
-      }
-      if (!row.proportion) {
-        this.userInfo.proportion = "";
-      }
-    },
-    sizeClick(row){
-      this.$router.push({
-        path:'/sizeList',
-        query:{
-          id: row.openId
-        }
-      })
-    },
-    cancleEdit() {
-      (this.userInfo = {
-        proportion: "",
-        name: "",
-        phone: "",
-        channel: "",
-        id: ""
-      }),
-        (this.editVisible = false);
-    },
-    edit(data) {
-      this.$refs[data].validate(valid => {
-        if (valid) {
-          const loading = showLoading();
-          Update(this.userInfo)
-            .then(res => {
-              loading.close();
-              if (res.data.code === ERR_CODE) {
-                this.editVisible = false;
-                this.getUserList();
-                showNotification("success", "更改成功");
-              } else {
-                showNotification("warning", res.data.msg);
-              }
-            })
-            .catch(res => {
-              loading.close();
-            });
-        }
-      });
-    },
-    addVip(data) {
-      this.$refs[data].validate(valid => {
-        if (valid) {
-          const loading = showLoading();
-          let options = {
-            proportion: this.data.proportion,
-            id: this.data.id
-          };
-          Update(options)
-            .then(res => {
-              loading.close();
-              if (res.data.code === ERR_CODE) {
-                this.dialogTableVisible = false;
-                this.getUserList();
+				this.options4.push(obj);
+				this.userInfo.referralCode = row.invitationCode;
+				if(!row.parentName) {
+					this.userInfo.referralCode = "";
+					this.options4 = [];
+				}
+				if(!row.channel) {
+					this.userInfo.channel = "";
+				}
+				if(!row.proportion) {
+					this.userInfo.proportion = "";
+				}
+			},
+			sizeClick(row) {
+				this.$router.push({
+					path: '/sizeList',
+					query: {
+						id: row.openId
+					}
+				})
+			},
+			cancleEdit() {
+				(this.userInfo = {
+					proportion: "",
+					name: "",
+					phone: "",
+					channel: "",
+					id: ""
+				}),
+				(this.editVisible = false);
+			},
+			edit(data) {
+				this.$refs[data].validate(valid => {
+					if(valid) {
+						const loading = showLoading();
+						Update(this.userInfo)
+							.then(res => {
+								loading.close();
+								if(res.data.code === ERR_CODE) {
+									this.editVisible = false;
+									this.getUserList();
+									showNotification("success", "更改成功");
+								} else {
+									showNotification("warning", res.data.msg);
+								}
+							})
+							.catch(res => {
+								loading.close();
+							});
+					}
+				});
+			},
+			addVip(data) {
+				this.$refs[data].validate(valid => {
+					if(valid) {
+						const loading = showLoading();
+						let options = {
+							proportion: this.data.proportion,
+							id: this.data.id
+						};
+						Update(options)
+							.then(res => {
+								loading.close();
+								if(res.data.code === ERR_CODE) {
+									this.dialogTableVisible = false;
+									this.getUserList();
 
-                showNotification("success", "更改成功");
-              } else {
-                showNotification("warning", res.data.msg);
-              }
-            })
-            .catch(res => {
-              loading.close();
-            });
-        }
-      });
-    },
-    removeClick(row) {
-      this.$confirm("此操作将永久删除尺寸类型, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          const loading = showLoading();
-          let options = {
-            id: row.id,
-            status: 1
-          };
-          options = JSON.stringify(options);
-          UpdateCustomized(options)
-            .then(res => {
-              loading.close();
-              if (res.data.code == ERR_CODE) {
-                showNotification("success", "删除成功");
-                this.getUserList();
-              } else {
-                showNotification("error", res.data.msg);
-              }
-            })
-            .catch(res => {
-              loading.close();
-              showNotification("error", "网络错误,请稍后");
-            });
-        })
-        .catch(() => {});
-    },
-    handleCurrentChange(val) {
-      this.currentPage = val;
-      this.getUserList();
-    },
-    getLevel() {
-      const loading = showLoading();
-      let options = {
-        pageSize: 10000,
-        currentPage: 0
-      };
-      UserList(options).then(res => {
-        loading.close();
-        if (res.data.code == ERR_CODE) {
-          let data = res.data.data;
-          this.list = data.map(item => {
-            return {
-              value: item.invitationCode,
-              label: item.nickName,
-              label1: item.name === null ? "" : item.name
-            };
-          });
-        } else {
-          showNotification("warning", res.data.msg);
-        }
-      });
-    },
-    getUserList() {
-      const loading = showLoading();
-      let options = {
-        pageSize: 10,
-        currentPage: this.currentPage
-      };
-      UserList(options).then(res => {
-        loading.close();
-        if (res.data.code == ERR_CODE) {
-          this.tableData = [];
-          let data = res.data.data;
-          this.total = res.data.total;
-          this.tableData = res.data.data;
-          this.levelArray = res.data.data;
-        } else {
-          showNotification("warning", res.data.msg);
-        }
-      });
-    }
-  },
-  created() {
-    this.getUserList();
-    this.getLevel();
-  }
-};
+									showNotification("success", "更改成功");
+								} else {
+									showNotification("warning", res.data.msg);
+								}
+							})
+							.catch(res => {
+								loading.close();
+							});
+					}
+				});
+			},
+			removeClick(row) {
+				this.$confirm("此操作将永久删除尺寸类型, 是否继续?", "提示", {
+						confirmButtonText: "确定",
+						cancelButtonText: "取消",
+						type: "warning"
+					})
+					.then(() => {
+						const loading = showLoading();
+						let options = {
+							id: row.id,
+							status: 1
+						};
+						options = JSON.stringify(options);
+						UpdateCustomized(options)
+							.then(res => {
+								loading.close();
+								if(res.data.code == ERR_CODE) {
+									showNotification("success", "删除成功");
+									this.getUserList();
+								} else {
+									showNotification("error", res.data.msg);
+								}
+							})
+							.catch(res => {
+								loading.close();
+								showNotification("error", "网络错误,请稍后");
+							});
+					})
+					.catch(() => {});
+			},
+			handleCurrentChange(val) {
+				this.currentPage = val;
+				this.getUserList();
+			},
+			getLevel() {
+				const loading = showLoading();
+				let options = {
+					pageSize: 10000,
+					currentPage: 0
+				};
+				UserList(options).then(res => {
+					loading.close();
+					if(res.data.code == ERR_CODE) {
+						let data = res.data.data;
+						this.list = data.map(item => {
+							return {
+								value: item.invitationCode,
+								label: item.nickName,
+								label1: item.name === null ? "" : item.name
+							};
+						});
+					} else {
+						showNotification("warning", res.data.msg);
+					}
+				});
+			},
+			getUserList() {
+				const loading = showLoading();
+				let options = {
+					pageSize: 10,
+					currentPage: this.currentPage
+				};
+				UserList(options).then(res => {
+					loading.close();
+					if(res.data.code == ERR_CODE) {
+						this.tableData = [];
+						let data = res.data.data;
+						this.total = res.data.total;
+						this.tableData = res.data.data;
+						this.levelArray = res.data.data;
+					} else {
+						showNotification("warning", res.data.msg);
+					}
+				});
+			}
+		},
+		created() {
+			this.getUserList();
+			this.getLevel();
+		}
+	};
 </script>
 
 <style scoped>
-.pagination-box {
-  margin-top: 40px;
-  text-align: right;
-}
-
-.editVisible .el-input {
-  width: 222px;
-}
+	.pagination-box {
+		margin-top: 40px;
+		text-align: right;
+	}
+	
+	.editVisible .el-input {
+		width: 222px;
+	}
 </style>

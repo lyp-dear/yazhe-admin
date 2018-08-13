@@ -135,6 +135,7 @@ export default {
           label: "创始投资人"
         }
       ],
+      botData:[],
       userInfo: {
         proportion: "",
         name: "",
@@ -212,7 +213,9 @@ export default {
       if (node.level === 0) {
         return resolve(this.data);
       } else {
-        this.getBot(node.data.id, node.level, resolve);
+
+
+        this.getBot(node.data.id, node.level, node.data.parentId,resolve);
       }
     },
     handleCheckChange(data, checked, indeterminate) {},
@@ -289,20 +292,24 @@ export default {
         }
       });
     },
-    getBot(id, proportion, resolve) {
+    getBot(id, proportion, parentId,resolve) {
       let options = {
         id: id,
-        pageSize: 10000
+        pageSize: 10000,
+        parentId: parentId,
+        proportion:proportion
       };
-      if (proportion === 1) {
-        options.proportion = "";
-      } else {
-        options.proportion = proportion;
-      }
+
       Bot(options)
         .then(res => {
           if (res.data.code === 0) {
             let data = res.data.data;
+            console.log(data);
+						if(data.length === 0){
+							data = this.botData;
+						}else{
+							this.botData = data;
+						}
             data.map(item => {
               if (item.level === 0) {
                 item.label = `${item.nickName}(普通用户)`;
