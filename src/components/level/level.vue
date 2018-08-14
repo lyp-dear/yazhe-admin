@@ -135,7 +135,7 @@ export default {
           label: "创始投资人"
         }
       ],
-      botData:[],
+      botData: [],
       userInfo: {
         proportion: "",
         name: "",
@@ -190,7 +190,7 @@ export default {
       });
     },
     getQuery() {
-      console.log(1111)
+      console.log(1111);
       let options = {
         proportion: this.proportion,
         pageSize: 10000
@@ -213,9 +213,7 @@ export default {
       if (node.level === 0) {
         return resolve(this.data);
       } else {
-
-
-        this.getBot(node.data.id, node.level, node.data.parentId,resolve);
+        this.getBot(node.data.id, node.level, node.data.parentId, resolve);
       }
     },
     handleCheckChange(data, checked, indeterminate) {},
@@ -292,24 +290,25 @@ export default {
         }
       });
     },
-    getBot(id, proportion, parentId,resolve) {
+    getBot(id, proportion, parentId, resolve) {
       let options = {
         id: id,
         pageSize: 10000,
         parentId: parentId,
-        proportion:proportion
+        proportion: proportion
       };
-
       Bot(options)
         .then(res => {
           if (res.data.code === 0) {
             let data = res.data.data;
-            console.log(data);
-						if(data.length === 0){
-							data = this.botData;
-						}else{
-							this.botData = data;
-						}
+            this.botData = data;
+            this.botData.map(item => {
+              item.level = parseInt(proportion + 1);
+            });
+            console.log(data.length === 0,proportion <= 5)
+            if (data.length === 0 && proportion <= 5) {
+              data = this.botData;
+            }
             data.map(item => {
               if (item.level === 0) {
                 item.label = `${item.nickName}(普通用户)`;
