@@ -301,13 +301,14 @@ export default {
         .then(res => {
           if (res.data.code === 0) {
             let data = res.data.data;
-            this.botData = data;
-            this.botData.map(item => {
-              item.level = parseInt(proportion + 1);
-            });
-            console.log(data.length === 0,proportion <= 5)
+
             if (data.length === 0 && proportion <= 5) {
               data = this.botData;
+            } else {
+              this.botData = data;
+              this.botData.map(item => {
+                item.level = parseInt(proportion + 1);
+              });
             }
             data.map(item => {
               if (item.level === 0) {
